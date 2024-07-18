@@ -1,5 +1,7 @@
 from PyQt6 import QtCore, QtWidgets, QtGui
 import sys
+import fastf1
+import numpy as np
 
 
 class App(QtWidgets.QWidget):
@@ -22,30 +24,43 @@ class App(QtWidgets.QWidget):
         font = QtGui.QFont("Halvetica", 12)
 
         self.season_text.setFont(font)
-        self.season_text.move(100, 25)
+        self.season_text.move(50, 25)
 
         self.season.resize(100, 25)
-        self.season.move(100, 50)
+        self.season.move(50, 50)
+        self.season.editingFinished.connect(self.on_editing_finished)
 
         self.race_text.setFont(font)
-        self.race_text.move(210, 25)
+        self.race_text.move(160, 25)
 
-        self.race_options.resize(100, 25)
-        self.race_options.move(210, 50)
+        self.race_options.resize(200, 25)
+        self.race_options.move(160, 50)
 
         self.driver1_text.setFont(font)
-        self.driver1_text.move(100, 100)
+        self.driver1_text.move(50, 100)
         self.driver2_text.setFont(font)
-        self.driver2_text.move(210, 100)
+        self.driver2_text.move(160, 100)
         self.driver1.resize(100, 25)
-        self.driver1.move(100, 125)
+        self.driver1.move(50, 125)
         self.driver2.resize(100, 25)
-        self.driver2.move(210, 125)
+        self.driver2.move(160, 125)
 
         self.query_button.resize(100, 50)
         self.query_button.move(150, 200)
 
         self.show()
+
+    @QtCore.pyqtSlot()
+    def on_editing_finished(self):
+        year = self.season.text()
+        print(year)
+        races = fastf1.get_event_schedule(int(year), include_testing=False)
+        countries = races['Country'].to_numpy()
+        locations = races['Location'].to_numpy()
+        options = []
+        for i in range(countries.size):
+            options.append(countries[i] + ', ' + locations[i])
+        self.race_options.addItems(options)
 
 
 if __name__ == "__main__":
