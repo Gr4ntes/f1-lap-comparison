@@ -4,6 +4,7 @@ import fastf1
 import fastf1.plotting
 import matplotlib.pyplot as plt
 import numpy as np
+import datetime
 
 
 class App(QtWidgets.QWidget):
@@ -71,6 +72,17 @@ class App(QtWidgets.QWidget):
     @QtCore.pyqtSlot()
     def on_race_chosen(self):
         self.session = fastf1.get_session(int(self.season.text()), self.race_options.currentText(), 'Q')
+        current_date = datetime.date.today()
+
+        if self.session.date.date() > current_date:
+            message_box = QtWidgets.QMessageBox()
+            message_box.setWindowTitle("Error")
+            message_box.setText("This session is yet to happen. No information right now!")
+            message_box.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
+            message_box.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            message_box.exec()
+            return
+
         self.session.load()
         drivers = self.session.drivers
         driver_abbreviations = []
