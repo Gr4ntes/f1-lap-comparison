@@ -86,9 +86,9 @@ class App(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def on_race_chosen(self):
-        self.session = fastf1.get_session(int(self.season.text()), self.race_options.currentText(), 'Q')
+        event = fastf1.get_event(int(self.season.text()), self.race_options.currentIndex()+1)
+        self.session = event.get_session('Q')
         current_date = datetime.date.today()
-
         if self.session.date.date() > current_date:
             message_box = QtWidgets.QMessageBox()
             message_box.setWindowTitle("Error")
