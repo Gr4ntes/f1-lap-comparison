@@ -65,6 +65,7 @@ class App(QtWidgets.QWidget):
         options = []
         for i in range(countries.size):
             options.append(countries[i] + ', ' + locations[i])
+        self.race_options.clear()
         self.race_options.addItems(options)
 
     @QtCore.pyqtSlot()
@@ -72,6 +73,8 @@ class App(QtWidgets.QWidget):
         self.session = fastf1.get_session(int(self.season.text()), self.race_options.currentText(), 'Q')
         self.session.load()
         drivers = self.session.drivers
+        self.driver1.clear()
+        self.driver2.clear()
         self.driver1.addItems(drivers)
         self.driver2.addItems(drivers)
 
@@ -83,8 +86,10 @@ class App(QtWidgets.QWidget):
         driver2_tel = driver2_lap.get_car_data().add_distance()
 
         fig, ax = plt.subplots()
-        ax.plot(driver1_tel['Distance'], driver1_tel['Speed'], color="green", label=self.session.get_driver(self.driver1.currentText())['Abbreviation'])
-        ax.plot(driver2_tel['Distance'], driver2_tel['Speed'], color="red", label=self.session.get_driver(self.driver2.currentText())['Abbreviation'])
+        ax.plot(driver1_tel['Distance'], driver1_tel['Speed'], color="green",
+                label=self.session.get_driver(self.driver1.currentText())['Abbreviation'])
+        ax.plot(driver2_tel['Distance'], driver2_tel['Speed'], color="red",
+                label=self.session.get_driver(self.driver2.currentText())['Abbreviation'])
 
         ax.set_xlabel('Distance in m')
         ax.set_ylabel('Speed in km/h')
@@ -94,7 +99,6 @@ class App(QtWidgets.QWidget):
                      f"{self.session.event['EventName']} {self.session.event.year} Qualifying")
 
         plt.show()
-
 
 
 if __name__ == "__main__":
