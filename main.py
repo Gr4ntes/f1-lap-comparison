@@ -73,10 +73,13 @@ class App(QtWidgets.QWidget):
         self.session = fastf1.get_session(int(self.season.text()), self.race_options.currentText(), 'Q')
         self.session.load()
         drivers = self.session.drivers
+        driver_abbreviations = []
+        for driver in drivers:
+            driver_abbreviations.append(self.session.get_driver(driver)['Abbreviation'])
         self.driver1.clear()
         self.driver2.clear()
-        self.driver1.addItems(drivers)
-        self.driver2.addItems(drivers)
+        self.driver1.addItems(driver_abbreviations)
+        self.driver2.addItems(driver_abbreviations)
 
     @QtCore.pyqtSlot()
     def plot(self):
