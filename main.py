@@ -100,10 +100,15 @@ class App(QtWidgets.QWidget):
         driver1_tel = driver1_lap.get_car_data().add_distance()
         driver2_tel = driver2_lap.get_car_data().add_distance()
 
+        driver1_color = fastf1.plotting.team_color(self.session.get_driver(self.driver1.currentText())['TeamName'])
+        driver2_color = fastf1.plotting.team_color(self.session.get_driver(self.driver2.currentText())['TeamName'])
+        if driver2_color == driver1_color:
+            driver2_color = "#FFFFFF"
+
         fig, ax = plt.subplots()
-        ax.plot(driver1_tel['Distance'], driver1_tel['Speed'], color="green",
+        ax.plot(driver1_tel['Distance'], driver1_tel['Speed'], color=driver1_color,
                 label=self.session.get_driver(self.driver1.currentText())['Abbreviation'])
-        ax.plot(driver2_tel['Distance'], driver2_tel['Speed'], color="red",
+        ax.plot(driver2_tel['Distance'], driver2_tel['Speed'], color=driver2_color,
                 label=self.session.get_driver(self.driver2.currentText())['Abbreviation'])
 
         ax.set_xlabel('Distance in m')
