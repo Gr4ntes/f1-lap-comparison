@@ -20,6 +20,10 @@ class App(QtWidgets.QWidget):
         self.driver2_text = QtWidgets.QLabel("Driver 2", self)
         self.driver2 = QtWidgets.QComboBox(self)
         self.query_button = QtWidgets.QPushButton("See Results", self)
+        self.color_rect1 = QtWidgets.QLabel(self)
+        self.color_rect2 = QtWidgets.QLabel(self)
+        self.driver1_color = "white"
+        self.driver2_color = "white"
         self.init_ui()
 
     def init_ui(self):
@@ -44,11 +48,20 @@ class App(QtWidgets.QWidget):
         self.driver1_text.setFont(font)
         self.driver1_text.move(50, 100)
         self.driver2_text.setFont(font)
-        self.driver2_text.move(160, 100)
+        self.driver2_text.move(200, 100)
         self.driver1.resize(100, 25)
         self.driver1.move(50, 125)
         self.driver2.resize(100, 25)
-        self.driver2.move(160, 125)
+        self.driver2.move(200, 125)
+        self.driver1.activated.connect(self.on_driver1_chosen)
+        self.driver2.activated.connect(self.on_driver2_chosen)
+
+        self.color_rect1.setFixedSize(25, 25)
+        self.color_rect1.move(160, 125)
+        self.color_rect1.setStyleSheet(f"background-color: {self.driver1_color};")
+        self.color_rect2.setFixedSize(25, 25)
+        self.color_rect2.move(310, 125)
+        self.color_rect2.setStyleSheet(f"background-color: {self.driver2_color};")
 
         self.query_button.resize(100, 50)
         self.query_button.move(150, 200)
@@ -93,6 +106,21 @@ class App(QtWidgets.QWidget):
         self.driver1.addItems(driver_abbreviations)
         self.driver2.addItems(driver_abbreviations)
 
+        self.driver1_color = fastf1.plotting.team_color(self.session.get_driver(self.driver1.currentText())['TeamName'])
+        self.driver2_color = fastf1.plotting.team_color(self.session.get_driver(self.driver2.currentText())['TeamName'])
+        self.color_rect1.setStyleSheet(f"background-color: {self.driver1_color};")
+        self.color_rect2.setStyleSheet(f"background-color: {self.driver2_color};")
+
+    @QtCore.pyqtSlot()
+    def on_driver1_chosen(self):
+        self.driver1_color = fastf1.plotting.team_color(self.session.get_driver(self.driver1.currentText())['TeamName'])
+        self.color_rect1.setStyleSheet(f"background-color: {self.driver1_color};")
+
+    @QtCore.pyqtSlot()
+    def on_driver2_chosen(self):
+        self.driver2_color = fastf1.plotting.team_color(self.session.get_driver(self.driver2.currentText())['TeamName'])
+        self.color_rect2.setStyleSheet(f"background-color: {self.driver2_color};")
+
     @QtCore.pyqtSlot()
     def plot(self):
         driver1_lap = self.session.laps.pick_driver(self.driver1.currentText()).pick_fastest()
@@ -100,15 +128,13 @@ class App(QtWidgets.QWidget):
         driver1_tel = driver1_lap.get_car_data().add_distance()
         driver2_tel = driver2_lap.get_car_data().add_distance()
 
-        driver1_color = fastf1.plotting.team_color(self.session.get_driver(self.driver1.currentText())['TeamName'])
-        driver2_color = fastf1.plotting.team_color(self.session.get_driver(self.driver2.currentText())['TeamName'])
-        if driver2_color == driver1_color:
+        if self.driver2_color == self.driver1_color:
             driver2_color = "#FFFFFF"
 
         fig, ax = plt.subplots()
-        ax.plot(driver1_tel['Distance'], driver1_tel['Speed'], color=driver1_color,
+        ax.plot(driver1_tel['Distance'], driver1_tel['Speed'], color=self.driver1_color,
                 label=self.session.get_driver(self.driver1.currentText())['Abbreviation'])
-        ax.plot(driver2_tel['Distance'], driver2_tel['Speed'], color=driver2_color,
+        ax.plot(driver2_tel['Distance'], driver2_tel['Speed'], color=self.driver2_color,
                 label=self.session.get_driver(self.driver2.currentText())['Abbreviation'])
 
         ax.set_xlabel('Distance in m')
