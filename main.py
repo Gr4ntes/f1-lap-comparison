@@ -13,15 +13,15 @@ class App(QtWidgets.QWidget):
         super().__init__()
         self.season_text = QtWidgets.QLabel("Season", self)
         self.season = QtWidgets.QLineEdit(self)
-        self.race_text = QtWidgets.QLabel("Race", self)
+        self.race_text = QtWidgets.QLabel("Session", self)
         self.race_options = QtWidgets.QComboBox(self)
         self.driver1_text = QtWidgets.QLabel("Driver 1", self)
         self.driver1 = QtWidgets.QComboBox(self)
         self.driver2_text = QtWidgets.QLabel("Driver 2", self)
         self.driver2 = QtWidgets.QComboBox(self)
         self.query_button = QtWidgets.QPushButton("See Results", self)
-        self.color_rect1 = QtWidgets.QLabel(self)
-        self.color_rect2 = QtWidgets.QLabel(self)
+        self.color_rect1 = QtWidgets.QPushButton(self)
+        self.color_rect2 = QtWidgets.QPushButton(self)
         self.driver1_color = "white"
         self.driver2_color = "white"
         self.init_ui()
@@ -62,6 +62,8 @@ class App(QtWidgets.QWidget):
         self.color_rect2.setFixedSize(25, 25)
         self.color_rect2.move(310, 125)
         self.color_rect2.setStyleSheet(f"background-color: {self.driver2_color};")
+        self.color_rect1.clicked.connect(self.on_rect1_clicked)
+        self.color_rect2.clicked.connect(self.on_rect2_clicked)
 
         self.query_button.resize(100, 50)
         self.query_button.move(150, 200)
@@ -122,6 +124,18 @@ class App(QtWidgets.QWidget):
         self.color_rect2.setStyleSheet(f"background-color: {self.driver2_color};")
 
     @QtCore.pyqtSlot()
+    def on_rect1_clicked(self):
+        color = QtWidgets.QColorDialog.getColor().name()
+        self.driver1_color = color
+        self.color_rect1.setStyleSheet(f"background-color: {self.driver1_color};")
+
+    @QtCore.pyqtSlot()
+    def on_rect2_clicked(self):
+        color = QtWidgets.QColorDialog.getColor().name()
+        self.driver2_color = color
+        self.color_rect2.setStyleSheet(f"background-color: {self.driver2_color};")
+
+    @QtCore.pyqtSlot()
     def plot(self):
         driver1_lap = self.session.laps.pick_driver(self.driver1.currentText()).pick_fastest()
         driver2_lap = self.session.laps.pick_driver(self.driver2.currentText()).pick_fastest()
@@ -129,7 +143,7 @@ class App(QtWidgets.QWidget):
         driver2_tel = driver2_lap.get_car_data().add_distance()
 
         if self.driver2_color == self.driver1_color:
-            driver2_color = "#FFFFFF"
+            self.driver2_color = "#FFFFFF"
 
         fig, ax = plt.subplots()
         ax.plot(driver1_tel['Distance'], driver1_tel['Speed'], color=self.driver1_color,
